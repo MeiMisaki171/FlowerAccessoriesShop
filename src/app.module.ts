@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { ProductsModule } from './products/products.module';
 import { PaymentModule } from './payment/payment.module';
 import { OrderModule } from './order/order.module';
@@ -20,6 +21,9 @@ import { DbhcModule } from './dbhc/dbhc.module';
     AuthModule,
     CartModule,
     DbhcModule,
+    ConfigModule.forRoot({
+      isGlobal: true, // makes config available everywhere
+    }),
   ],
 })
 export class AppModule {}
