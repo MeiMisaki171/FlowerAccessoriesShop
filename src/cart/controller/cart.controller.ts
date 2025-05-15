@@ -1,7 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { CartService } from '../service/cart.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CartResponseDto } from '../dto/cart.response.dto';
 import { AddToCartDto } from '../dto/add-to-cart.dto';
 
 @ApiTags('Cart')

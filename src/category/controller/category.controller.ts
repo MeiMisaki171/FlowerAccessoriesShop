@@ -3,9 +3,9 @@ import { CategoryService } from '../service/category.service';
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CategoryResponseDto } from '../dto/category.response.dto';
 import { CreateCategoryDto } from '../dto/create-category.dto';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { RolesGuard } from 'src/roles.guard';
-import { Roles } from 'src/roles.decorator';
+import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
+import { RolesGuard } from '../../roles.guard';
+import { Roles } from '../../roles.decorator';
 
 @ApiTags('Category')
 @Controller('category')

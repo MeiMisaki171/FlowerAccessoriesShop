@@ -18,12 +18,12 @@ import { ProductResponseDto } from '../dto/product.response.dto';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateProductDto } from '../dto/create-product.dto';
 import { UpdateProductDto } from '../dto/update-product.dto';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { RolesGuard } from 'src/roles.guard';
-import { Roles } from 'src/roles.decorator';
+import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
+import { RolesGuard } from '../../roles.guard';
+import { Roles } from '../../roles.decorator';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from '../strategy/upload-image.strategy';
-import { ImageService } from 'src/image/service/image.service';
+import { ImageService } from '../../image/service/image.service';
 
 @ApiTags('Products')
 @Controller('products')
