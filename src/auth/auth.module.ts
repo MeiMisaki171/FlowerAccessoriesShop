@@ -6,12 +6,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { PrismaService } from '../../prisma/prisma.service/prisma.service';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { JwtAuthGuard } from './jwt-auth.guard';
-import { FacebookStrategy } from './strategy/facebook.strategy';
-import { GoogleStrategy } from './strategy/google.strategy';
+// import { FacebookStrategy } from './strategy/facebook.strategy';
+// import { GoogleStrategy } from './strategy/google.strategy';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, PrismaService, JwtStrategy, JwtAuthGuard, GoogleStrategy, FacebookStrategy],
+  providers: [AuthService, PrismaService, JwtStrategy, JwtAuthGuard],
   exports: [AuthService],
   imports: [
     PrismaModule,
