@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { readdir, unlink } from 'fs/promises';
 import { join } from 'path';
-import { PrismaService } from 'prisma/prisma.service/prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service/prisma.service';
 
 const UPLOADS_DIR = join(process.cwd(), 'uploads');
 

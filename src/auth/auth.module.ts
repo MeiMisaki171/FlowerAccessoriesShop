@@ -3,7 +3,7 @@ import { AuthController } from './controller/auth.controller';
 import { PrismaModule } from 'prisma/prisma.module/prisma.module';
 import { AuthService } from './service/auth.service';
 import { JwtModule } from '@nestjs/jwt';
-import { PrismaService } from 'prisma/prisma.service/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service/prisma.service';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { FacebookStrategy } from './strategy/facebook.strategy';
