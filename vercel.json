@@ -6,12 +6,6 @@
       "runtime": "nodejs18.x"
     }
   },
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "api/index.ts"
-    }
-  ],
   "rewrites": [{ "source": "/(.*)", "destination": "/api" }],
   "buildCommand": "npm install && prisma generate && npm run build"
 }
