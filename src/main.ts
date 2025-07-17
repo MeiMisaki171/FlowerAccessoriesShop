@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import * as cookieParser from 'cookie-parser';
 
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -14,19 +15,29 @@ async function bootstrap() {
     credentials: true,
   });
 
+  // Add cookie parser middleware
+  app.use(cookieParser());
+
   const config = new DocumentBuilder()
     .setTitle('FlowerAccessoriesShop API')
     .setDescription('The FlowerAccessoriesShop API description')
     .setVersion('1.0')
-    .addBearerAuth(
-      {
-        // Cấu hình xác thực JWT Bearer
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-      },
-      'access-token',
-    )
+    .addCookieAuth('jwt', {
+      type: 'apiKey',
+      in: 'cookie',
+      name: 'jwt',
+      description: 'JWT token stored in cookie',
+    })
+
+    // .addBearerAuth(
+    //   {
+    //     // Cấu hình xác thực JWT Bearer
+    //     type: 'http',
+    //     scheme: 'bearer',
+    //     bearerFormat: 'JWT',
+    //   },
+    //   'access-token',
+    // )
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);

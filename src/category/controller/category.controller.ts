@@ -1,4 +1,4 @@
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, ApiCookieAuth } from '@nestjs/swagger';
 import { CategoryService } from '../service/category.service';
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CategoryResponseDto } from '../dto/category.response.dto';
@@ -27,7 +27,7 @@ export class CategoryController {
   @Post()
   @Roles('ADMIN')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiBearerAuth('access-token')
+  @ApiCookieAuth('jwt')
   @ApiOperation({ summary: 'Thêm mới danh mục' })
   @ApiResponse({ status: 201, description: 'Tạo thành công', type: CategoryResponseDto })
   async create(@Body() data: CreateCategoryDto): Promise<CategoryResponseDto> {
@@ -36,8 +36,8 @@ export class CategoryController {
 
   @Patch(':id')
   @Roles('ADMIN')
-  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiCookieAuth('jwt')
   @ApiOperation({ summary: 'Cập nhật danh mục' })
   async update(@Param('id') id: string, @Body() data: CreateCategoryDto): Promise<CategoryResponseDto> {
     return this.categoryService.updateCategory(+id, data);
@@ -45,8 +45,8 @@ export class CategoryController {
 
   @Delete('id')
   @Roles('ADMIN')
-  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiCookieAuth('jwt')
   @ApiOperation({ summary: 'Xóa sản phẩm' })
   async delete(@Param('id') id: string): Promise<{ message: string }> {
     return this.categoryService.delete(+id);

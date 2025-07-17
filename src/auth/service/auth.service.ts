@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { RegisterUserDto } from '../dto/register.user.dto';
 import { LoginDto } from '../dto/login.dto';
 import * as bcrypt from 'bcrypt';
+import { UserInfoDto } from '../dto/auth.response.dto';
 
 @Injectable()
 export class AuthService {
@@ -12,23 +13,27 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  private mapToUserInfo(user: any): UserInfoDto {
+    return {
+      id: user.id,
+      phone: user.phone,
+      email: user.email,
+      role: user.role,
+    };
+  }
+
   async register(dto: RegisterUserDto) {
     try {
       // Kiểm tra sự tồn tại của phone, username hoặc email trong một lần truy vấn duy nhất
       const existingUser = await this.prisma.user.findFirst({
         where: {
-          OR: [{ phone: dto.phone }, { username: dto.username }, { email: dto.email }],
+          OR: [{ phone: dto.phone }, { email: dto.email }],
         },
       });
 
       if (existingUser) {
         // Lỗi nếu tìm thấy người dùng đã tồn tại
-        const field =
-          existingUser.phone === dto.phone
-            ? 'Số điện thoại'
-            : existingUser.username === dto.username
-              ? 'Tên người dùng'
-              : 'Email';
+        const field = existingUser.phone === dto.phone ? 'Số điện thoại' : 'Email';
 
         throw new BadRequestException(`${field} đã tồn tại.`);
       }
@@ -38,14 +43,17 @@ export class AuthService {
       const user = await this.prisma.user.create({
         data: {
           phone: dto.phone,
-          username: dto.username,
-          fullName: dto.fullName,
           password: hashed,
           provider: 'local',
         },
       });
 
-      return this.generateToken(user);
+      const { token, cookie } = this.generateToken(user);
+      return {
+        token,
+        cookie,
+        user: this.mapToUserInfo(user),
+      };
     } catch (error) {
       console.error('Error in register():', error);
 
@@ -61,7 +69,7 @@ export class AuthService {
   async login(dto: LoginDto) {
     const user = await this.prisma.user.findFirst({
       where: {
-        OR: [{ phone: dto.login }, { username: dto.login }],
+        OR: [{ phone: dto.account }, { email: dto.account }],
         provider: 'local',
       },
     });
@@ -70,7 +78,12 @@ export class AuthService {
       throw new UnauthorizedException('Sai thông tin đăng nhập');
     }
 
-    return this.generateToken(user);
+    const { token, cookie } = this.generateToken(user);
+    return {
+      token,
+      cookie,
+      user: this.mapToUserInfo(user),
+    };
   }
 
   // async loginWithFacebook(email: string, fullName: string) {
@@ -123,8 +136,65 @@ export class AuthService {
       role: user.role,
     };
 
+    const token = this.jwtService.sign(payload, {
+      expiresIn: '24h', // Thêm thời gian hết hạn cho JWT token
+    });
+
     return {
-      access_token: this.jwtService.sign(payload),
+      token,
+      cookie: {
+        name: 'jwt',
+        value: token,
+        options: {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict' as const,
+          maxAge: 24 * 60 * 60 * 1000, // 24 hours
+          path: '/', // Đảm bảo cookie có thể truy cập từ mọi path
+          domain: process.env.COOKIE_DOMAIN || undefined, // Cho phép cấu hình domain qua env
+        },
+      },
     };
+  }
+
+  async logout() {
+    return {
+      cookie: {
+        name: 'jwt',
+        value: '',
+        options: {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict' as const,
+          expires: new Date(0), // Đặt thời gian hết hạn về quá khứ để xóa cookie
+          path: '/',
+          domain: process.env.COOKIE_DOMAIN || undefined,
+        },
+      },
+    };
+  }
+
+  async refreshToken(user: any) {
+    try {
+      // Kiểm tra xem user có tồn tại trong database không
+      const existingUser = await this.prisma.user.findUnique({
+        where: { id: user.id },
+      });
+
+      if (!existingUser) {
+        throw new UnauthorizedException('Người dùng không tồn tại');
+      }
+
+      // Tạo token và cookie mới
+      const { token, cookie } = this.generateToken(existingUser);
+
+      return {
+        token,
+        cookie,
+        user: this.mapToUserInfo(existingUser),
+      };
+    } catch (error) {
+      throw new UnauthorizedException('Không thể gia hạn token');
+    }
   }
 }

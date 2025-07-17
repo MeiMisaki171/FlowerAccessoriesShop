@@ -8,18 +8,9 @@ export class RegisterUserDto {
   phone: string;
 
   @ApiProperty()
-  @IsString()
-  @MinLength(3)
-  username: string;
-
-  @ApiProperty()
   @IsEmail()
   @IsOptional() // Email có thể optional khi đăng ký qua Google
   email?: string;
-
-  @ApiProperty()
-  @IsString()
-  fullName: string;
 
   @ApiProperty()
   @IsOptional()

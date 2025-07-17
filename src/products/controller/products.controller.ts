@@ -15,7 +15,16 @@ import {
 } from '@nestjs/common';
 import { ProductsService } from '../service/product.service';
 import { ProductResponseDto } from '../dto/product.response.dto';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+  ApiCookieAuth,
+} from '@nestjs/swagger';
 import { CreateProductDto } from '../dto/create-product.dto';
 import { UpdateProductDto } from '../dto/update-product.dto';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
@@ -24,6 +33,7 @@ import { Roles } from '../../roles.decorator';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from '../strategy/upload-image.strategy';
 import { ImageService } from '../../image/service/image.service';
+import { RefreshTokenGuard } from 'src/auth/guards/refresh-token.guard';
 
 @ApiTags('Products')
 @Controller('products')
@@ -81,6 +91,7 @@ export class ProductsController {
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard, RefreshTokenGuard)
   @ApiOperation({ summary: 'Lấy danh sách sản phẩm' })
   @ApiResponse({
     status: 200,
@@ -98,8 +109,8 @@ export class ProductsController {
 
   @Post()
   @Roles('ADMIN')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiBearerAuth('access-token')
+  @UseGuards(JwtAuthGuard, RolesGuard, RefreshTokenGuard)
+  @ApiCookieAuth('jwt')
   @ApiOperation({ summary: 'Tạo sản phẩm mới' })
   @ApiResponse({ status: 201, description: 'Tạo thành công', type: ProductResponseDto })
   @ApiConsumes('multipart/form-data')
@@ -121,7 +132,7 @@ export class ProductsController {
   @Patch(':id')
   @Roles('ADMIN')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiBearerAuth('access-token')
+  @ApiCookieAuth('jwt')
   @ApiOperation({ summary: 'Cập nhật sản phẩm' })
   async update(
     @Param('id') id: string,
@@ -136,7 +147,7 @@ export class ProductsController {
   @Delete(':id')
   @Roles('ADMIN')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiBearerAuth('access-token')
+  @ApiCookieAuth('jwt')
   @ApiOperation({ summary: 'Xoá sản phẩm' })
   async delete(@Param('id') id: string): Promise<{ message: string }> {
     return this.productsService.delete(+id);

@@ -4,7 +4,7 @@ import { IsString } from 'class-validator';
 export class LoginDto {
   @ApiProperty()
   @IsString()
-  login: string; // phone hoặc username
+  account: string; // phone hoặc username
 
   @ApiProperty()
   @IsString()
